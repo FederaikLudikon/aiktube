@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><title>AikTube — redirect</title></head>
+<body>
+<script>
+  // Google PKCE redirect: arriva con ?code=xxx nella query string
+  const params = new URLSearchParams(window.location.search);
+  const code = params.get('code');
+  if (code) {
+    sessionStorage.setItem('aiktube-oauth-code', code);
+  }
+  window.location.replace('/AikTube.html');
+</script>
+</body>
+</html>
