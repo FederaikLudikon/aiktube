@@ -4,7 +4,7 @@
 
 Instead of an algorithmically curated feed full of distractions, AikTube gives you a clean set of vertical columns — one per topic — each showing only the latest videos from the channels you actually care about. You decide what goes where.
 
-![AikTube screenshot concept](https://i.imgur.com/placeholder.png)
+![AikTube screenshot](ScreenGrab%20(ita-version).png)
 
 ---
 
