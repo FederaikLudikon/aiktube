@@ -13,23 +13,23 @@ if [ "$1" = "stop" ]; then
   PID=$(lsof -ti :$PORT 2>/dev/null)
   if [ -n "$PID" ]; then
     kill "$PID"
-    echo "🛑  AikTube server stopped (port $PORT)"
+    echo "🛑  AikTube server fermato (porta $PORT)"
   else
-    echo "⚠️   No server running on port $PORT"
+    echo "⚠️   Nessun server attivo sulla porta $PORT"
   fi
   exit 0
 fi
 
-# Start
+# Avvio
 cd "$SCRIPT_DIR"
 
 if /usr/sbin/lsof -Pi :$PORT -sTCP:LISTEN -t >/dev/null 2>&1; then
-  echo "✅  Server already running on :$PORT"
+  echo "✅  Server già attivo su :$PORT"
 else
-  echo "🚀  Starting AikTube server..."
+  echo "🚀  Avvio server AikTube..."
   /opt/homebrew/bin/node server.js &
   sleep 1
 fi
 
-echo "🌐  Opening Brave..."
+echo "🌐  Apro Brave..."
 open -a "Brave Browser" "http://localhost:$PORT/AikTube.html"

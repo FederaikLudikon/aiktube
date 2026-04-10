@@ -6,7 +6,7 @@
 <title>AIKTUBE</title>
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;1,9..144,300&family=Instrument+Sans:wght@400;500&display=swap');
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -33,6 +33,93 @@
 
 html, body { height:100%; overflow:hidden; }
 body { font-family:var(--body); background:var(--bg); color:var(--text); display:flex; flex-direction:column; }
+
+/* ── FOREST THEME ── */
+body.forest {
+  --bg:      #f5f8f0;
+  --surface: #ffffff;
+  --surface2:#eef4e6;
+  --border:  #c8d8b4;
+  --border2: #d8e4cc;
+  --text:    #1a1f14;
+  --muted:   #7a8a6a;
+  --muted2:  #4e5a40;
+  --sage-l:  #a8bc8e; --sage-m:  #7a9160; --sage-d:  #4e6038;
+  --blue-l:  #a8bc8e; --blue-m:  #5a7a60; --blue-d:  #3c5a48;
+  --sand-l:  #e8b87a; --sand-m:  #c4843c; --sand-d:  #8c5a3c;
+  --terra-l: #e8b87a; --terra-m: #c4843c; --terra-d: #8c5a3c;
+  --lav-l:   #9aaa7a; --lav-m:   #6a7a4e; --lav-d:   #4a5a32;
+  --mono:    'IBM Plex Mono', monospace;
+  --display: 'Fraunces', serif;
+  --body:    'Instrument Sans', sans-serif;
+}
+body.forest header {
+  background: #2c3323;
+  border-bottom-color: #3d4a2e;
+}
+body.forest .logo { color: #d4e0c4; }
+body.forest .logo em { color: #e8b87a; font-style: italic; }
+body.forest .sep { background: #3d4a2e; }
+body.forest .btn { border-radius: 100px; border-color: #3d4a2e; color: #a8bc8e; }
+body.forest .btn:hover { background: #3d4a2e; color: #d4e0c4; }
+body.forest .btn.primary { background: #4e6038; border-color: #4e6038; color: #eef4e6; border-radius: 100px; }
+body.forest .btn.primary:hover { background: #7a9160; border-color: #7a9160; }
+body.forest .btn.sand { color: #e8b87a; border-color: #8c5a3c; border-radius: 100px; }
+body.forest .btn.sand:hover { background: #c4843c; color: #2c3323; border-color: #c4843c; }
+body.forest .btn.filter { border-radius: 100px; }
+body.forest .btn.filter.active { background: #7a9160; border-color: #7a9160; color: #1a1f14; }
+body.forest .deck-wrap {
+  background:
+    radial-gradient(ellipse at 10% 90%, rgba(78,96,56,.07) 0%, transparent 60%),
+    radial-gradient(ellipse at 90% 10%, rgba(122,145,96,.05) 0%, transparent 60%),
+    #f5f8f0;
+  padding: 10px;
+  gap: 10px;
+}
+body.forest .col {
+  background: white;
+  border: 1.5px solid #c8d8b4;
+  border-radius: 14px;
+  box-shadow: 0 2px 8px rgba(26,31,20,.06);
+  border-left: 1.5px solid #c8d8b4;
+}
+body.forest .col-header {
+  background: #2c3323;
+  border-bottom: 1.5px solid #3d4a2e;
+  border-radius: 12px 12px 0 0;
+}
+body.forest .col-title { color: #d4e0c4; }
+body.forest .col-btn { border-color: #3d4a2e; color: #a8bc8e; }
+body.forest .col-btn:hover { background: #3d4a2e; color: #d4e0c4; }
+body.forest .col-title { font-size: .9rem; font-weight: 500; }
+body.forest .col-dot { border-radius: 50%; }
+body.forest .col-btn { border-radius: 50%; border: 1.5px solid #c8d8b4; }
+body.forest .col-meta { background: #f0f4e8; border-bottom-color: #d8e4cc; }
+body.forest .col-new { color: #4e6038; }
+body.forest .video-card:hover { background: #f0f4e8; }
+body.forest .thumb-wrap { border-radius: 8px; }
+body.forest .thumb-dur { border-radius: 100px; backdrop-filter: blur(4px); }
+body.forest .thumb-new { border-radius: 100px; background: #4e6038; }
+body.forest .play-btn { border-radius: 50%; background: rgba(240,244,232,.92); }
+body.forest .play-btn path { fill: #2c3323; }
+body.forest .card-dot { border-radius: 50%; }
+body.forest .feed-sep { background: #f0f4e8; color: #c4843c; border-color: #d8e4cc; }
+body.forest .feed-sep::after { background: #c8d8b4; }
+body.forest .col-empty { color: #7a8a6a; }
+body.forest .add-col-btn {
+  background: transparent; border: 2px dashed #c8d8b4; border-radius: 14px;
+  color: #7a8a6a;
+}
+body.forest .add-col-btn:hover { background: white; border-color: #7a9160; border-style: solid; color: #4e6038; }
+body.forest .add-col-btn .plus { color: #7a9160; }
+body.forest .toast { background: #2c3323; color: #d4e0c4; border-color: #3d4a2e; border-radius: 100px; }
+body.forest .modal { border-radius: 14px; overflow: hidden; }
+body.forest .modal-hd { background: #eef4e6; border-bottom-color: #c8d8b4; }
+body.forest .modal-x { border-radius: 50%; }
+body.forest .ch-search, body.forest .form-inp { border-radius: 8px; }
+body.forest .swatch { border-radius: 50%; }
+body.forest .ch-thumb { background: #eef4e6; }
+body.forest .header-info { color: #a8bc8e; }
 
 /* ── TOPBAR ── */
 header {
@@ -142,26 +229,93 @@ header {
 /* video card */
 .video-card { border-bottom:1px solid var(--border); cursor:pointer; transition:background .1s; display:block; margin-bottom:5px; }
 .video-card:hover { background:var(--surface2); }
+body.thumb-compact .video-card:hover { background: rgba(122,78,68,.18); }
 .thumb-wrap { width:100%; aspect-ratio:16/9; position:relative; overflow:hidden; background:var(--surface2); border-radius:0 5px 5px 5px; transition:width .55s cubic-bezier(.4,0,.2,1), height .55s cubic-bezier(.4,0,.2,1); }
 .thumb-img { width:100%; height:100%; object-fit:cover; transition:transform .25s; display:block; }
 .video-card:hover .thumb-img { transform:scale(1.04); }
 
-/* compact thumb mode */
-body.thumb-compact .thumb-wrap {
-  width:  calc(40px * 16 / 9); /* ~71px */
-  height: 40px;
-  transition: width .55s cubic-bezier(.4,0,.2,1), height .55s cubic-bezier(.4,0,.2,1);
+/* compact thumb mode — row layout */
+body.thumb-compact { --col-w: 280px; }
+
+body.thumb-compact .video-card {
+  display: block;
+  padding: 6px 8px;
+  position: relative;
 }
-body.thumb-compact .video-card:hover .thumb-wrap {
-  width:  var(--col-w);
+
+body.thumb-compact .thumb-wrap {
+  width:  calc(40px * 16 / 9);
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: 3px;
+  float: left;
+  margin-right: 8px;
+  margin-bottom: 4px;
+  overflow: hidden;
+  transition:
+    width  .55s cubic-bezier(.4,0,.2,1),
+    height .55s cubic-bezier(.4,0,.2,1),
+    border-radius .55s cubic-bezier(.4,0,.2,1);
+}
+
+body.thumb-compact .thumb-wrap.expanded {
+  float: none;
+  margin-right: 0;
+  width: 100%;
   height: calc(var(--col-w) * 9 / 16);
+  border-radius: 0 5px 5px 5px;
   transition-duration: .12s;
   transition-timing-function: ease-out;
 }
+
+body.thumb-compact .card-body {
+  overflow: hidden;
+  padding: 0;
+}
+
+body.thumb-compact .thumb-wrap.expanded + .card-body {
+  margin-top: 6px;
+}
+
+body.thumb-compact .card-ch-row { margin-bottom: 2px; }
+body.thumb-compact .card-title { -webkit-line-clamp: 2; font-size: .68rem; }
+body.thumb-compact .video-card::after { content: ''; display: table; clear: both; }
 .thumb-bg { width:100%; height:100%; display:flex; align-items:center; justify-content:center; font-family:var(--display); font-size:1.8rem; transition:transform .25s; }
 .video-card:hover .thumb-bg { transform:scale(1.06); }
 .thumb-dur { position:absolute; bottom:4px; right:5px; background:rgba(0,0,0,.82); font-family:var(--mono); font-size:.5rem; padding:1px 4px; color:#ccc; }
 .thumb-new { position:absolute; top:4px; left:5px; background:var(--sage-m); font-family:var(--mono); font-size:.48rem; font-weight:700; padding:1px 4px; color:#0d0d0b; letter-spacing:.1em; }
+.thumb-reel { position:absolute; top:4px; right:5px; background:var(--terra-d); font-family:var(--mono); font-size:.48rem; font-weight:700; padding:1px 4px; color:#f0d0c0; letter-spacing:.1em; }
+
+/* dismiss button — top-right of thumbnail */
+.card-dismiss {
+  position: absolute;
+  top: 4px; right: 4px;
+  width: 18px; height: 18px;
+  background: rgba(0,0,0,.6);
+  color: #eee;
+  border: none;
+  border-radius: 50%;
+  font-size: .65rem;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0;
+  transition: opacity .12s, background .12s;
+  z-index: 20;
+}
+.video-card:hover .card-dismiss { opacity: 1; }
+.card-dismiss:hover { background: var(--terra-d); color: #fff; }
+
+/* dismiss animation */
+.video-card.dismissing {
+  animation: dismissOut .28s ease-out forwards;
+  pointer-events: none;
+  overflow: hidden;
+}
+@keyframes dismissOut {
+  0%   { opacity:1; transform:translateX(0); max-height:300px; }
+  50%  { opacity:0; transform:translateX(20px); max-height:300px; }
+  100% { opacity:0; transform:translateX(20px); max-height:0; margin:0; padding:0; border:none; }
+}
 .play-over { position:absolute; inset:0; background:rgba(0,0,0,.2); display:flex; align-items:center; justify-content:center; opacity:0; transition:opacity .15s; }
 .video-card:hover .play-over { opacity:1; }
 .play-btn { width:28px; height:28px; background:rgba(184,205,180,.9); display:flex; align-items:center; justify-content:center; }
@@ -264,6 +418,8 @@ body.thumb-compact .video-card:hover .thumb-wrap {
 /* player modal */
 .player-modal { width:640px; max-width:95vw; }
 .player-wrap { width:100%; aspect-ratio:16/9; background:#000; }
+.player-modal.reel { width:360px; }
+.player-modal.reel .player-wrap { aspect-ratio:9/16; max-height:80vh; }
 .player-wrap iframe { width:100%; height:100%; border:none; display:block; }
 .player-info { padding:12px 14px; }
 .player-title { font-size:.9rem; font-weight:600; margin-bottom:5px; line-height:1.4; }
@@ -302,8 +458,8 @@ body.thumb-compact .video-card:hover .thumb-wrap {
       <div class="setup-hint">
         Go to <a href="https://console.cloud.google.com" target="_blank">console.cloud.google.com</a> →
         Create a project → Enable <strong>YouTube Data API v3</strong> →
-        Credentials → Create OAuth 2.0 Client ID (type: <strong>Web application</strong>) →
-        In <strong>Authorized redirect URIs</strong> add <code>http://localhost:51847/api/auth/callback</code>.<br>
+        Credenziali → Crea OAuth 2.0 Client ID (tipo: <strong>Web application</strong>) →
+        In <strong>Authorized redirect URIs</strong> aggiungi <code>http://localhost:51847/api/auth/callback</code>.<br>
         Copy both Client ID and Client Secret and paste them above.<br>
         The secret is safe — stored only on your Mac, never sent anywhere else.
       </div>
@@ -324,13 +480,14 @@ body.thumb-compact .video-card:hover .thumb-wrap {
   <button class="btn" onclick="openManageChannelsModal()">⚙ CHANNELS</button>
   <div class="sep"></div>
   <button class="btn filter" id="filter-all" onclick="setFilter('all')">ALL</button>
-  <button class="btn filter active" id="filter-1d" onclick="setFilter('1d')">1D</button>
-  <button class="btn filter" id="filter-1w" onclick="setFilter('1w')">1W</button>
+  <button class="btn filter" id="filter-1d" onclick="setFilter('1d')">1D</button>
+  <button class="btn filter active" id="filter-1w" onclick="setFilter('1w')">1W</button>
   <button class="btn filter" id="filter-1m" onclick="setFilter('1m')">1M</button>
   <div class="sep"></div>
   <button class="btn" id="refresh-btn" onclick="forceRefreshVideos()">↺ REFRESH</button>
   <button class="btn filter" id="avatar-toggle" onclick="toggleAvatars()" title="Show/hide channel avatars">◉ AVATAR</button>
   <button class="btn filter" id="compact-toggle" onclick="toggleCompact()" title="Compact thumbnails">▤ COMPACT</button>
+  <button class="btn filter" id="forest-toggle" onclick="toggleForest()" title="Forest theme">🌿</button>
   <div class="sep"></div>
   <button class="btn sand" onclick="exportJSON()">↓ EXPORT</button>
   <button class="btn sand" onclick="triggerImport()">↑ IMPORT</button>
@@ -385,7 +542,7 @@ body.thumb-compact .video-card:hover .thumb-wrap {
   <div class="modal">
     <div class="modal-hd">
       <div class="modal-title">AVAILABLE CHANNELS</div>
-      <button class="btn" id="unassigned-toggle" onclick="toggleUnassigned()" style="font-size:.48rem;padding:3px 8px">TUTTI</button>
+      <button class="btn" id="unassigned-toggle" onclick="toggleUnassigned()" style="font-size:.48rem;padding:3px 8px">ALL</button>
       <button class="modal-x" onclick="closeModal('channels-modal')">✕</button>
     </div>
     <div class="modal-body">
@@ -457,7 +614,6 @@ let selColor = COLORS[0];
 let selChannels = new Set();
 let editingId = null;
 let dragSrcIdx = null;
-let activeFilter = 'all';
 
 const FILTER_MS = {
   'all': Infinity,
@@ -468,11 +624,7 @@ const FILTER_MS = {
 
 function setFilter(f) {
   activeFilter = f;
-  document.querySelectorAll('.btn.filter').forEach(b => b.classList.remove('active'));
-  document.getElementById('filter-' + f)?.classList.add('active');
-  renderDeck();
-}
-function setFilter(f) {
+  localStorage.setItem('aiktube-filter', f);
   ['all','1d','1w','1m'].forEach(k => document.getElementById('filter-'+k)?.classList.remove('active'));
   document.getElementById('filter-' + f)?.classList.add('active');
   renderDeck();
@@ -557,6 +709,11 @@ async function init() {
   document.getElementById('avatar-toggle')?.classList.toggle('active', showChannelAvatars);
   document.body.classList.toggle('thumb-compact', thumbCompact);
   document.getElementById('compact-toggle')?.classList.toggle('active', thumbCompact);
+  document.body.classList.toggle('forest', forestTheme);
+  document.getElementById('forest-toggle')?.classList.toggle('active', forestTheme);
+  // Ripristina filtro tempo
+  ['all','1d','1w','1m'].forEach(k => document.getElementById('filter-'+k)?.classList.remove('active'));
+  document.getElementById('filter-' + activeFilter)?.classList.add('active');
 
   if (!state.clientId && !state.useMockup) {
     // Prima volta: mostra setup
@@ -611,7 +768,7 @@ async function initReal() {
       setLoading('Ready.', 100);
       await sleep(300);
     } catch(e) {
-      console.warn('API error durante init:', e.message);
+      console.warn('API error during init:', e.message);
       showToast('API quota exhausted — using cache', true);
       setLoading('Ready (cache).', 100);
       await sleep(300);
@@ -681,13 +838,13 @@ async function startOAuth() {
 
       if (e.data?.state && expectedState && e.data.state !== expectedState) {
         window.removeEventListener('message', handler);
-        showToast('Invalid auth: state mismatch', true);
+        showToast('Auth non valida: state mismatch', true);
         return;
       }
 
       if (e.data?.type === 'auth_success') {
         window.removeEventListener('message', handler);
-        showToast('YouTube connected ✓');
+        showToast('YouTube connesso ✓');
         state.accessToken = 'server';
         state.tokenExpiry = Date.now() + 3600000;
         saveState();
@@ -740,12 +897,12 @@ function updateAuthUI(authed) {
     return;
   }
   if (authed) {
-    btn.textContent = 'DISCONNECT';
+    btn.textContent = 'DISCONNETTI';
     btn.className = 'btn terra';
-    status.textContent = 'YouTube connected ✓';
+    status.textContent = 'YouTube connesso ✓';
     status.style.color = 'var(--sage-m)';
   } else {
-    btn.textContent = 'CONNECT YT';
+    btn.textContent = 'CONNETTI YT';
     btn.className = 'btn terra';
     status.textContent = 'not authenticated';
     status.style.color = 'var(--muted)';
@@ -758,7 +915,7 @@ function updateAuthUI(authed) {
 let quotaExhausted = false;
 
 async function ytFetch(endpoint, params={}) {
-  if (quotaExhausted) throw new Error('quota esaurita — riprova domani');
+  if (quotaExhausted) throw new Error('quota exhausted — retry tomorrow');
   const ytUrl = new URL(YT_API_BASE + endpoint);
   Object.entries(params).forEach(([k,v]) => ytUrl.searchParams.set(k,v));
   const proxyUrl = '/api/youtube?url=' + encodeURIComponent(ytUrl.toString());
@@ -812,7 +969,7 @@ async function fetchSubscriptions() {
     list.channels = normalizeChannelIds(list.channels).filter(id => validIds.has(id));
     orphansRemoved += before - list.channels.length;
   });
-  if (orphansRemoved > 0) showToast(`${orphansRemoved} canale/i rimosso/i (unsubscribed)`);
+  if (orphansRemoved > 0) showToast(`${orphansRemoved} channel(s) removed (unsubscribed)`);
 
   state.channels = normalizeChannels(channels);
   saveState();
@@ -860,7 +1017,7 @@ async function forceRefreshVideos() {
   await fetchRecentVideos();
   renderDeck();
   btn.disabled = false;
-  btn.textContent = '↺ REFRESH';
+  btn.textContent = '↺ AGGIORNA';
   showToast('Feed updated ✓');
 }
 
@@ -968,10 +1125,35 @@ function renderDeck() {
     });
     col.querySelectorAll('.video-card').forEach(card => {
       card.addEventListener('click', () => handleCardClick(card));
+      // Compact mode: expand thumb on mouseenter of the whole card row
+      card.addEventListener('mouseenter', () => {
+        if (document.body.classList.contains('thumb-compact')) {
+          const thumb = card.querySelector('.thumb-wrap');
+          if (thumb) {
+            thumb.classList.add('expanded');
+            thumb.style.transitionDuration = '.12s';
+            thumb.style.transitionTimingFunction = 'ease-out';
+          }
+        }
+      });
+      card.addEventListener('mouseleave', () => {
+        const thumb = card.querySelector('.thumb-wrap');
+        if (thumb) {
+          thumb.classList.remove('expanded');
+          thumb.style.transitionDuration = '.55s';
+          thumb.style.transitionTimingFunction = 'cubic-bezier(.4,0,.2,1)';
+        }
+      });
     });
     col.querySelectorAll('.video-card .channel-link').forEach(link => {
       link.addEventListener('click', event => {
         event.stopPropagation();
+      });
+    });
+    col.querySelectorAll('.card-dismiss').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        dismissVideo(btn.dataset.vid, btn.closest('.video-card'));
       });
     });
     col.querySelectorAll('.ch-avatar-img').forEach(img => {
@@ -983,6 +1165,18 @@ function renderDeck() {
         fb.textContent = img.dataset.fallbackLetter || '?';
         img.replaceWith(fb);
       });
+    });
+    col.querySelectorAll('.thumb-img[data-check-reel]').forEach(img => {
+      const check = () => {
+        const isVertical = img.naturalHeight > img.naturalWidth;
+        const card = img.closest('.video-card');
+        const reelBadge = card?.querySelector('.thumb-reel');
+        if (reelBadge) reelBadge.style.display = isVertical ? '' : 'none';
+        if (isVertical) card?.setAttribute('data-is-reel', '1');
+        else card?.removeAttribute('data-is-reel');
+      };
+      if (img.complete && img.naturalWidth > 0) check();
+      else img.addEventListener('load', check);
     });
     col.querySelectorAll('.thumb-img').forEach(img => {
       img.addEventListener('error', onThumbImageError);
@@ -1018,19 +1212,16 @@ function skeletonCards(n) {
 }
 
 function getActiveFilter() {
-  return document.querySelector('.btn.filter.active')?.id?.replace('filter-','') || '1d';
+  return activeFilter || '1d';
 }
 
 function filterByTime(videos) {
   const f = getActiveFilter();
-  if (f === 'all') return videos;
-  const now = Date.now();
-  const cutoff = {
-    '1d': now - 86400000,
-    '1w': now - 7 * 86400000,
-    '1m': now - 30 * 86400000,
-  }[f];
-  return videos.filter(v => new Date(v.published).getTime() >= cutoff);
+  const cutoff = f === 'all' ? 0 : Date.now() - {'1d':86400000,'1w':7*86400000,'1m':30*86400000}[f];
+  return videos.filter(v =>
+    !dismissed.has(v.id) &&
+    (f === 'all' || new Date(v.published).getTime() >= cutoff)
+  );
 }
 
 function buildFeedWithSeparators(rawVideos) {
@@ -1071,8 +1262,15 @@ function videoCardHTML(v) {
   const ch = v.ch; if(!ch) return '';
   const dur = parseDuration(v.duration);
   const ago = timeAgo(v.published);
-  const isNew = Date.now() - new Date(v.published) < 48*3600000;
-  const title = safeText(v.title, 'Video senza titolo');
+  const isNew  = Date.now() - new Date(v.published) < 48*3600000;
+  // Reel detection: thumbnail aspect ratio (vertical = short/reel), checked onload via data attribute
+  const mightBeReel = (() => {
+    const m = (v.duration||'').match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
+    if (!m) return false;
+    const secs = (parseInt(m[1]||0)*3600)+(parseInt(m[2]||0)*60)+parseInt(m[3]||0);
+    return secs > 0 && secs <= 60;
+  })();
+  const title = safeText(v.title, 'Untitled video');
   const channelName = safeText(ch.name, 'Canale');
   const channelId = safeText(ch.id);
   const videoId = safeText(v.id);
@@ -1082,7 +1280,7 @@ function videoCardHTML(v) {
   const thumbSrc = safeImageUrl(v.thumb);
 
   const thumbHTML = thumbSrc
-    ? `<img class="thumb-img" src="${escapeAttr(thumbSrc)}" alt="${escapeAttr(title)}" loading="lazy">`
+    ? `<img class="thumb-img" src="${escapeAttr(thumbSrc)}" alt="${escapeAttr(title)}" loading="lazy"${mightBeReel ? ' data-check-reel="1"' : ''}>`
     : '';
   const thumbFallback = `<div class="thumb-bg" style="color:${channelColor}44;${thumbSrc?'display:none;':''}">${escapeHtml(channelName.charAt(0).toUpperCase())}</div>`;
 
@@ -1099,12 +1297,15 @@ function videoCardHTML(v) {
          data-chid="${escapeAttr(channelId)}"
          data-chname="${escapeAttr(channelName)}"
          data-views="${escapeAttr(views)}"
-         data-ago="${escapeAttr(ago)}">
+         data-ago="${escapeAttr(ago)}"
+         data-duration="${escapeAttr(v.duration||'')}">
       <div class="thumb-wrap">
         ${thumbHTML}${thumbFallback}
         <div class="play-over"><div class="play-btn"><svg width="10" height="12" viewBox="0 0 10 12"><path d="M0 0L10 6L0 12Z" fill="#0d0d0b"/></svg></div></div>
+        <button class="card-dismiss" data-vid="${escapeAttr(videoId)}" title="Dismiss">✕</button>
         ${dur ? `<div class="thumb-dur">${dur}</div>` : ''}
         ${isNew ? '<div class="thumb-new">NEW</div>' : ''}
+        ${mightBeReel ? '<div class="thumb-reel" style="display:none">REEL</div>' : ''}
       </div>
       <div class="card-body">
         <div class="card-ch-row">
@@ -1131,20 +1332,23 @@ function handleCardClick(el) {
     el.dataset.chid,
     el.dataset.chname,
     el.dataset.views,
-    el.dataset.ago
+    el.dataset.ago,
+    el.dataset.duration || '',
+    el.hasAttribute('data-is-reel')
   );
 }
 
 // ─────────────────────────────────────────────────────────
 // PLAYER con fallback embed → YouTube
 // ─────────────────────────────────────────────────────────
-function openPlayer(videoId, title, channelId, chName, views, ago) {
+function openPlayer(videoId, title, channelId, chName, views, ago, duration, isReel) {
   currentVideoId = videoId;
   currentVideoUrl = `https://www.youtube.com/watch?v=${videoId}`;
+  document.querySelector('.player-modal').classList.toggle('reel', !!isReel);
 
   const safeChannelName = safeText(chName, 'Video');
   document.getElementById('player-ch-title').textContent = safeChannelName.toUpperCase();
-  document.getElementById('player-title-text').textContent = safeText(title, 'Video senza titolo');
+  document.getElementById('player-title-text').textContent = safeText(title, 'Untitled video');
   document.getElementById('player-ch').textContent = safeChannelName;
   document.getElementById('player-ch').href = getChannelUrl(channelId);
   document.getElementById('player-views').textContent = formatViews(views);
@@ -1341,6 +1545,10 @@ function deleteList(id) {
 let showOnlyUnassigned = false;
 let showChannelAvatars = JSON.parse(localStorage.getItem('aiktube-show-avatars') ?? 'true');
 let thumbCompact = JSON.parse(localStorage.getItem('aiktube-thumb-compact') ?? 'false');
+let forestTheme  = JSON.parse(localStorage.getItem('aiktube-forest') ?? 'true');
+let activeFilter = localStorage.getItem('aiktube-filter') || '1w';
+let dismissed    = new Set(JSON.parse(localStorage.getItem('aiktube-dismissed') || '[]'));
+let undoHistory  = []; // sessione only, max 20
 
 function toggleAvatars() {
   showChannelAvatars = !showChannelAvatars;
@@ -1348,6 +1556,49 @@ function toggleAvatars() {
   const btn = document.getElementById('avatar-toggle');
   if (btn) btn.classList.toggle('active', showChannelAvatars);
   renderDeck();
+}
+
+function dismissVideo(videoId, cardEl) {
+  // Animate out
+  cardEl.classList.add('dismissing');
+  cardEl.addEventListener('animationend', () => {
+    dismissed.add(videoId);
+    localStorage.setItem('aiktube-dismissed', JSON.stringify([...dismissed]));
+    undoHistory.push(videoId);
+    if (undoHistory.length > 20) undoHistory.shift();
+    cardEl.remove();
+  }, { once: true });
+
+  // Toast con UNDO
+  showToastWithUndo('Video dismissed');
+}
+
+function undoDismiss() {
+  if (undoHistory.length === 0) return;
+  const videoId = undoHistory.pop();
+  dismissed.delete(videoId);
+  localStorage.setItem('aiktube-dismissed', JSON.stringify([...dismissed]));
+  renderDeck();
+  showToast('Undone ✓');
+}
+
+function showToastWithUndo(msg) {
+  const t = document.getElementById('toast');
+  t.innerHTML = `${msg} <span id="toast-undo" style="text-decoration:underline;cursor:pointer;margin-left:10px">UNDO</span>`;
+  t.className = 'toast show';
+  clearTimeout(toastTimer);
+  document.getElementById('toast-undo')?.addEventListener('click', () => {
+    t.classList.remove('show');
+    undoDismiss();
+  });
+  toastTimer = setTimeout(() => t.classList.remove('show'), 4000);
+}
+
+function toggleForest() {
+  forestTheme = !forestTheme;
+  localStorage.setItem('aiktube-forest', JSON.stringify(forestTheme));
+  document.body.classList.toggle('forest', forestTheme);
+  document.getElementById('forest-toggle')?.classList.toggle('active', forestTheme);
 }
 
 function toggleCompact() {
@@ -1361,7 +1612,7 @@ function toggleUnassigned() {
   showOnlyUnassigned = !showOnlyUnassigned;
   const btn = document.getElementById('unassigned-toggle');
   if (btn) {
-    btn.textContent = showOnlyUnassigned ? 'UNASSIGNED' : 'TUTTI';
+    btn.textContent = showOnlyUnassigned ? 'SENZA LISTA' : 'TUTTI';
     btn.classList.toggle('active', showOnlyUnassigned);
   }
   openManageChannelsModal();
