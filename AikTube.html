@@ -4,7 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AIKTUBE</title>
-<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<meta name="theme-color" content="#0d0d0b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="AikTube">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" href="AikTubeIcon.png">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;1,9..144,300&family=Instrument+Sans:wght@400;500&display=swap');
 
@@ -304,6 +311,13 @@ body.thumb-compact .video-card::after { content: ''; display: table; clear: both
 }
 .video-card:hover .card-dismiss { opacity: 1; }
 .card-dismiss:hover { background: var(--terra-d); color: #fff; }
+.player-dismiss {
+  font-family: var(--mono); font-size: .55rem; text-transform: uppercase;
+  letter-spacing: .08em; padding: 4px 10px; border: 1px solid var(--terra-d);
+  background: none; color: var(--terra-l); cursor: pointer;
+  border-radius: 2px; transition: all .12s;
+}
+.player-dismiss:hover { background: var(--terra-d); color: #fff; }
 
 /* dismiss animation */
 .video-card.dismissing {
@@ -578,6 +592,7 @@ body.thumb-compact .video-card::after { content: ''; display: table; clear: both
         <a class="channel-link" id="player-ch" target="_blank" rel="noopener noreferrer"></a>
         <span id="player-views"></span>
         <span id="player-ago"></span>
+        <button class="player-dismiss" id="player-dismiss-btn" onclick="dismissFromPlayer()">✓ DISMISS</button>
         <a class="player-yt-link" id="player-yt-link" target="_blank">↗ Open on YouTube</a>
       </div>
     </div>
@@ -640,6 +655,7 @@ function setFilter(f) {
 let currentVideoId = null;
 let currentVideoUrl = null;
 let iframeCheckTimer = null;
+let playerIsPlaying = false;
 
 // ─────────────────────────────────────────────────────────
 // PERSIST
@@ -1322,7 +1338,7 @@ function videoCardHTML(v) {
       <div class="thumb-wrap">
         ${thumbHTML}${thumbFallback}
         <div class="play-over"><div class="play-btn"><svg width="10" height="12" viewBox="0 0 10 12"><path d="M0 0L10 6L0 12Z" fill="#0d0d0b"/></svg></div></div>
-        <button class="card-dismiss" data-vid="${escapeAttr(videoId)}" title="Dismiss">✕</button>
+        <button class="card-dismiss" data-vid="${escapeAttr(videoId)}" title="Dismiss">✓</button>
         ${dur ? `<div class="thumb-dur">${dur}</div>` : ''}
         ${isNew ? '<div class="thumb-new">NEW</div>' : ''}
         ${mightBeReel ? '<div class="thumb-reel" style="display:none">REEL</div>' : ''}
@@ -1364,6 +1380,7 @@ function handleCardClick(el) {
 function openPlayer(videoId, title, channelId, chName, views, ago, duration, isReel) {
   currentVideoId = videoId;
   currentVideoUrl = `https://www.youtube.com/watch?v=${videoId}`;
+  playerIsPlaying = true;
   document.querySelector('.player-modal').classList.toggle('reel', !!isReel);
 
   const safeChannelName = safeText(chName, 'Video');
@@ -1381,6 +1398,7 @@ function openPlayer(videoId, title, channelId, chName, views, ago, duration, isR
   iframe.onerror = onIframeError;
   const embedUrl = new URL(`https://www.youtube-nocookie.com/embed/${videoId}`);
   embedUrl.searchParams.set('autoplay', '1');
+  embedUrl.searchParams.set('enablejsapi', '1');
   embedUrl.searchParams.set('origin', window.location.origin);
   iframe.src = embedUrl.toString();
 
@@ -1393,6 +1411,7 @@ function openPlayer(videoId, title, channelId, chName, views, ago, duration, isR
 
 function onIframeLoad() {
   clearTimeout(iframeCheckTimer);
+  notifyPlayerListening();
   // Check whether the content actually loaded or if this is an error page
   // Non possiamo accedere al DOM dell'iframe (cross-origin), ma possiamo
   // controllare la dimensione: YouTube error pages hanno height <100px
@@ -1426,10 +1445,69 @@ function fallbackToYouTube() {
 
 function closePlayer() {
   clearTimeout(iframeCheckTimer);
+  playerIsPlaying = false;
   document.getElementById('yt-iframe').src = 'about:blank';
   closeModal('player-modal');
   currentVideoId = null;
 }
+
+function dismissFromPlayer() {
+  if (!currentVideoId) return;
+  const videoId = currentVideoId;
+  closePlayer();
+  const card = document.querySelector(`.video-card[data-vid="${videoId}"]`);
+  if (card) {
+    dismissVideo(videoId, card);
+  } else {
+    dismissed.add(videoId);
+    localStorage.setItem('aiktube-dismissed', JSON.stringify([...dismissed]));
+    undoHistory.push(videoId);
+    if (undoHistory.length > 20) undoHistory.shift();
+    renderDeck();
+    showToastWithUndo('Video dismissed');
+  }
+}
+
+function notifyPlayerListening() {
+  const iframe = document.getElementById('yt-iframe');
+  if (!iframe?.contentWindow || !iframe.src || iframe.src === 'about:blank') return;
+  const origin = new URL(iframe.src).origin;
+  iframe.contentWindow.postMessage(JSON.stringify({ event: 'listening', id: 'aiktube-player' }), origin);
+}
+
+function postPlayerCommand(func, args = []) {
+  const iframe = document.getElementById('yt-iframe');
+  if (!iframe?.contentWindow || !iframe.src || iframe.src === 'about:blank') return;
+  const origin = new URL(iframe.src).origin;
+  iframe.contentWindow.postMessage(JSON.stringify({ event: 'command', func, args }), origin);
+}
+
+function togglePlayerPlayback() {
+  if (!currentVideoId) return;
+  postPlayerCommand(playerIsPlaying ? 'pauseVideo' : 'playVideo');
+  playerIsPlaying = !playerIsPlaying;
+}
+
+window.addEventListener('message', event => {
+  if (!['https://www.youtube.com', 'https://www.youtube-nocookie.com'].includes(event.origin)) return;
+  let payload = event.data;
+  if (typeof payload === 'string') {
+    try {
+      payload = JSON.parse(payload);
+    } catch {
+      return;
+    }
+  }
+
+  const stateCode = payload?.event === 'infoDelivery'
+    ? payload?.info?.playerState
+    : payload?.event === 'onStateChange'
+      ? payload?.info
+      : undefined;
+
+  if (stateCode === 1) playerIsPlaying = true;
+  if (stateCode === 0 || stateCode === 2) playerIsPlaying = false;
+});
 
 // ─────────────────────────────────────────────────────────
 // SETUP SCREEN
@@ -1760,6 +1838,35 @@ document.querySelectorAll('.modal-overlay').forEach(el => {
   });
 });
 
+document.addEventListener('keydown', e => {
+  const playerOpen = document.getElementById('player-modal').classList.contains('open');
+  const modalOpen = ['channels-modal', 'list-modal'].some(id => document.getElementById(id).classList.contains('open'));
+  const typing = ['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName);
+
+  if (e.key === 'Escape') {
+    if (playerOpen) { closePlayer(); return; }
+    if (modalOpen) { ['channels-modal', 'list-modal'].forEach(id => closeModal(id)); }
+    return;
+  }
+
+  if ((e.key === 'f' || e.key === 'F') && playerOpen && !typing) {
+    const iframe = document.getElementById('yt-iframe');
+    (iframe?.requestFullscreen || iframe?.webkitRequestFullscreen)?.call(iframe);
+    return;
+  }
+
+  if (playerOpen && !typing && (e.code === 'Space' || e.key === ' ')) {
+    e.preventDefault();
+    togglePlayerPlayback();
+    return;
+  }
+
+  if (playerOpen && !typing && (e.key === 'd' || e.key === 'D')) {
+    e.preventDefault();
+    dismissFromPlayer();
+  }
+});
+
 // ─────────────────────────────────────────────────────────
 // TOAST
 // ─────────────────────────────────────────────────────────
@@ -1836,6 +1943,15 @@ function safeImageUrl(value) {
 function safeDomId(value, fallback='node') {
   const sanitized = safeText(value).trim().replace(/[^a-zA-Z0-9_-]/g, '-');
   return sanitized || fallback;
+}
+
+function registerAppShell() {
+  if (!('serviceWorker' in navigator)) return;
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/service-worker.js').catch(error => {
+      console.warn('service worker registration failed', error);
+    });
+  }, { once: true });
 }
 
 function normalizeChannelIds(ids) {
@@ -1925,6 +2041,7 @@ function formatViews(n) {
 // ─────────────────────────────────────────────────────────
 // START
 // ─────────────────────────────────────────────────────────
+registerAppShell();
 init();
 </script>
 </body>

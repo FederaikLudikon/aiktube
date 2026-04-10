@@ -1,0 +1,29 @@
+{
+  "name": "AikTube",
+  "short_name": "AikTube",
+  "description": "Installable local YouTube dashboard focused on the channels you actually follow.",
+  "lang": "en-US",
+  "start_url": "/AikTube.html",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0d0d0b",
+  "theme_color": "#0d0d0b",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/AikTubeIcon.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

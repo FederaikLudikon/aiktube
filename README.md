@@ -4,9 +4,9 @@
 
 Instead of an algorithmically curated feed full of distractions, AikTube gives you a clean set of vertical columns — one per topic — each showing only the latest videos from the channels you actually care about. You decide what goes where.
 
-![AikTube — Forest theme](ForestSnapshot.png)
-
 ![AikTube — Dark theme](DarkSnapshot.png)
+
+![AikTube — Forest theme](ForestSnapshot.png)
 
 ---
 
@@ -18,12 +18,13 @@ Instead of an algorithmically curated feed full of distractions, AikTube gives y
 - **Inline player** — click any video to watch it inside AikTube; automatically falls back to YouTube if embeds are disabled
 - **Reels/Shorts detection** — short videos (≤60s) with vertical thumbnails are automatically flagged with a REEL badge; the player switches to 9:16 aspect ratio for them
 - **Per-channel reel auto-dismiss** — in the Channels panel you can hide Shorts/Reels automatically for specific channels
-- **Dismiss** — hover any video thumbnail and click ✕ to dismiss it globally across all lists; dismissed videos are persisted; an UNDO toast appears for 4 seconds after each dismiss
+- **Dismiss** — hover any video thumbnail and click ✓ to dismiss it globally across all lists; a ✓ Dismiss button is also available inside the player; dismissed videos are persisted with a 90-day TTL (auto-cleaned on load); an UNDO toast appears for 4 seconds after each dismiss (session only, up to 20 steps)
 - **Compact mode** — row layout: small thumbnail on the left, channel + title on the right; hover expands the thumbnail inline, pushing the text below; columns widen automatically
 - **Forest theme** — a light, rounded skin with forest tones; active by default
 - **Channel avatars** — show channel icons on video cards
 - **Export / Import** — save your lists as a portable JSON file; load on any browser
 - **Smart caching** — videos cached 30 min, subscriptions 6 hours; manual refresh always available
+- **Installable app shell** — can be installed as a PWA for a dedicated desktop-style window and app icon
 
 AikTube runs entirely on your own machine. No server, no account, no tracking. Your credentials stay on your computer.
 
@@ -43,7 +44,9 @@ AikTube runs entirely on your own machine. No server, no account, no tracking. Y
 | **↓ Export** | Download lists as JSON |
 | **↑ Import** | Load lists from JSON |
 | **Connect YT / Disconnect** | OAuth login/logout |
-| **✕ on thumbnail** | Dismiss a video globally (hidden everywhere, persisted) |
+| **✓ on thumbnail** | Dismiss a video globally (hidden everywhere, 90-day TTL, UNDO available for 4s) |
+| **ESC** | Close the player or any open modal |
+| **F** | Fullscreen the player |
 
 All toggle states (theme, compact, avatars, time filter) are saved and restored on next load.
 
