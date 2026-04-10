@@ -17,6 +17,7 @@ Instead of an algorithmically curated feed full of distractions, AikTube gives y
 - **Time filters** — ALL / 1D / 1W / 1M; default is 1W; choice is saved across sessions
 - **Inline player** — click any video to watch it inside AikTube; automatically falls back to YouTube if embeds are disabled
 - **Reels/Shorts detection** — short videos (≤60s) with vertical thumbnails are automatically flagged with a REEL badge; the player switches to 9:16 aspect ratio for them
+- **Per-channel reel auto-dismiss** — in the Channels panel you can hide Shorts/Reels automatically for specific channels
 - **Dismiss** — hover any video thumbnail and click ✕ to dismiss it globally across all lists; dismissed videos are persisted; an UNDO toast appears for 4 seconds after each dismiss
 - **Compact mode** — row layout: small thumbnail on the left, channel + title on the right; hover expands the thumbnail inline, pushing the text below; columns widen automatically
 - **Forest theme** — a light, rounded skin with forest tones; active by default
@@ -167,6 +168,7 @@ AikTube/
 ├── server.js             — local Node.js server: OAuth + API proxy
 ├── index.html            — OAuth callback redirect handler
 ├── aiktube.sh            — launcher script
+├── .gitignore            — ignores local secrets and macOS metadata
 └── aiktube-config.json   — auto-created; your OAuth credentials
                             DO NOT share or commit this file
 ```
@@ -175,10 +177,11 @@ AikTube/
 
 ## Security
 
-- Server only accepts connections from `127.0.0.1`
-- OAuth token stored server-side in `aiktube-config.json`, never sent to the browser
+- Server listens on `localhost` only
+- API requests are accepted only from the local app, with local-request checks on protected routes
+- OAuth token is stored server-side in `aiktube-config.json`, never sent to the browser
 - `aiktube-config.json` is blocked from static file serving
-- Add it to `.gitignore` if you use version control
+- `.gitignore` already excludes `aiktube-config.json`
 
 ---
 

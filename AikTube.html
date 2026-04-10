@@ -407,6 +407,13 @@ body.thumb-compact .video-card::after { content: ''; display: table; clear: both
 .ch-list-row { display:flex; align-items:center; gap:8px; padding:6px 8px; border-bottom:1px solid var(--border); }
 .ch-list-row:last-child { border-bottom:none; }
 .ch-list-name { font-size:.8rem; flex:1; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.ch-list-tools { margin-left:auto; display:flex; align-items:center; gap:8px; }
+.ch-reel-toggle {
+  display:flex; align-items:center; gap:5px;
+  font-family:var(--mono); font-size:.5rem; text-transform:uppercase;
+  letter-spacing:.08em; color:var(--muted2); white-space:nowrap; cursor:pointer;
+}
+.ch-reel-toggle input { accent-color:var(--terra-m); width:12px; height:12px; }
 .ch-list-select {
   font-family:var(--mono); font-size:.55rem; text-transform:uppercase;
   background:var(--bg); border:1px solid var(--border2); color:var(--muted2);
@@ -442,7 +449,7 @@ body.thumb-compact .video-card::after { content: ''; display: table; clear: both
   <div class="loading-bar"><div class="loading-bar-fill" id="loading-bar"></div></div>
 </div>
 
-<!-- SETUP (prima configurazione) -->
+<!-- SETUP (first-time configuration) -->
 <div id="setup-screen" class="hidden">
   <div class="setup-box">
     <div class="setup-title">AIKTUBE SETUP</div>
@@ -458,8 +465,8 @@ body.thumb-compact .video-card::after { content: ''; display: table; clear: both
       <div class="setup-hint">
         Go to <a href="https://console.cloud.google.com" target="_blank">console.cloud.google.com</a> →
         Create a project → Enable <strong>YouTube Data API v3</strong> →
-        Credenziali → Crea OAuth 2.0 Client ID (tipo: <strong>Web application</strong>) →
-        In <strong>Authorized redirect URIs</strong> aggiungi <code>http://localhost:51847/api/auth/callback</code>.<br>
+        Credentials → Create OAuth 2.0 Client ID (type: <strong>Web application</strong>) →
+        In <strong>Authorized redirect URIs</strong> add <code>http://localhost:51847/api/auth/callback</code>.<br>
         Copy both Client ID and Client Secret and paste them above.<br>
         The secret is safe — stored only on your Mac, never sent anywhere else.
       </div>
@@ -495,7 +502,7 @@ body.thumb-compact .video-card::after { content: ''; display: table; clear: both
   <div class="header-right">
     <button class="btn terra" id="auth-btn" onclick="handleAuthBtn()">CONNECT YT</button>
     <div class="header-info">
-      <span id="deck-info">0 LISTE</span><br>
+      <span id="deck-info">0 LISTS</span><br>
       <span id="auth-status" style="color:var(--muted)">not authenticated</span>
     </div>
   </div>
@@ -508,7 +515,7 @@ body.thumb-compact .video-card::after { content: ''; display: table; clear: both
   </button>
 </div>
 
-<!-- MODAL: lista -->
+<!-- MODAL: list -->
 <div class="modal-overlay" id="list-modal">
   <div class="modal">
     <div class="modal-hd">
@@ -537,7 +544,7 @@ body.thumb-compact .video-card::after { content: ''; display: table; clear: both
   </div>
 </div>
 
-<!-- MODAL: canali -->
+<!-- MODAL: channels -->
 <div class="modal-overlay" id="channels-modal">
   <div class="modal">
     <div class="modal-hd">
@@ -705,18 +712,18 @@ async function init() {
   loadState();
 
   setLoading('Loading...', 10);
-  // Rispecchia stato bottone avatar
+  // Reflect avatar button state
   document.getElementById('avatar-toggle')?.classList.toggle('active', showChannelAvatars);
   document.body.classList.toggle('thumb-compact', thumbCompact);
   document.getElementById('compact-toggle')?.classList.toggle('active', thumbCompact);
   document.body.classList.toggle('forest', forestTheme);
   document.getElementById('forest-toggle')?.classList.toggle('active', forestTheme);
-  // Ripristina filtro tempo
+  // Restore saved time filter
   ['all','1d','1w','1m'].forEach(k => document.getElementById('filter-'+k)?.classList.remove('active'));
   document.getElementById('filter-' + activeFilter)?.classList.add('active');
 
   if (!state.clientId && !state.useMockup) {
-    // Prima volta: mostra setup
+    // First run: show setup
     hideLoading();
     showSetup();
     return;
@@ -736,7 +743,7 @@ async function initMockup() {
   if (state.lists.length === 0) {
     state.lists = normalizeLists([
       {id:uid(), name:'Tech',    color:'#7a9ebb', channels:['UCXuqSBlHAE6Xw-yeJA0Tunw','UC9-y-6csu5WGm29I7JiwpnA','UCYO_jab_esuFRV4b17AJtAw']},
-      {id:uid(), name:'Scienza', color:'#8aaa85', channels:['UCHnyfMqiRRG1u-2MsSQLbXA','UCsXVk37bltHxD1rDPwtNM8Q','UC2C_jShtL725hvbm1arSV9w']},
+      {id:uid(), name:'Science', color:'#8aaa85', channels:['UCHnyfMqiRRG1u-2MsSQLbXA','UCsXVk37bltHxD1rDPwtNM8Q','UC2C_jShtL725hvbm1arSV9w']},
     ]);
   }
   setLoading('Loading videos...', 70);
@@ -774,7 +781,7 @@ async function initReal() {
       await sleep(300);
     }
   } else {
-    // Usa canali salvati se esistono
+    // Use cached channels if available
     if (state.channels.length === 0) {
       setLoading('No data. Connect YouTube.', 100);
     } else {
@@ -821,7 +828,7 @@ async function startOAuth() {
     const r = await apiFetch('/api/auth/start');
     const data = await readJsonSafe(r);
     if (!r.ok || data?.error || !data?.url) {
-      showToast('Errore: ' + (data?.error || 'avvio auth agollito'), true);
+      showToast('Error: ' + (data?.error || 'auth start failed'), true);
       return;
     }
 
@@ -838,13 +845,13 @@ async function startOAuth() {
 
       if (e.data?.state && expectedState && e.data.state !== expectedState) {
         window.removeEventListener('message', handler);
-        showToast('Auth non valida: state mismatch', true);
+        showToast('Invalid auth: state mismatch', true);
         return;
       }
 
       if (e.data?.type === 'auth_success') {
         window.removeEventListener('message', handler);
-        showToast('YouTube connesso ✓');
+        showToast('YouTube connected ✓');
         state.accessToken = 'server';
         state.tokenExpiry = Date.now() + 3600000;
         saveState();
@@ -852,7 +859,7 @@ async function startOAuth() {
         initReal();
       } else if (e.data?.type === 'auth_error') {
         window.removeEventListener('message', handler);
-        showToast('Errore auth: ' + (e.data.error || 'sconosciuto'), true);
+        showToast('Auth error: ' + (e.data.error || 'unknown'), true);
       }
     });
   } catch {
@@ -866,12 +873,12 @@ async function logout() {
     const data = await readJsonSafe(r);
     if (!r.ok || !data?.ok) {
       console.warn('logout failed', data);
-      showToast('Logout non riuscito — riprova', true);
+      showToast('Logout failed - try again', true);
       return;
     }
   } catch (e) {
     console.warn('logout failed', e);
-    showToast('Logout non riuscito — server non raggiungibile', true);
+    showToast('Logout failed - server unreachable', true);
     return;
   }
   state.accessToken = '';
@@ -897,12 +904,12 @@ function updateAuthUI(authed) {
     return;
   }
   if (authed) {
-    btn.textContent = 'DISCONNETTI';
+    btn.textContent = 'DISCONNECT';
     btn.className = 'btn terra';
-    status.textContent = 'YouTube connesso ✓';
+    status.textContent = 'YouTube connected ✓';
     status.style.color = 'var(--sage-m)';
   } else {
-    btn.textContent = 'CONNETTI YT';
+    btn.textContent = 'CONNECT YT';
     btn.className = 'btn terra';
     status.textContent = 'not authenticated';
     status.style.color = 'var(--muted)';
@@ -955,13 +962,13 @@ async function fetchSubscriptions() {
     page++;
   } while (pageToken && page < 10);
 
-  // Aggiorna solo se abbiamo ricevuto qualcosa — non sovrascrivere la cache con lista vuota
+  // Update only if we actually received something; do not overwrite cache with an empty list
   if (channels.length === 0 && state.channels.length > 0) {
     showToast('Subscriptions not updated — using cache');
     return;
   }
 
-  // Rimuovi dalle liste i canali a cui non sei più iscritto
+  // Remove channels from lists if you are no longer subscribed
   const validIds = new Set(channels.map(c => c.id));
   let orphansRemoved = 0;
   state.lists.forEach(list => {
@@ -1008,9 +1015,9 @@ async function forceRefreshVideos() {
   const btn = document.getElementById('refresh-btn');
   btn.disabled = true;
   btn.textContent = '↺ ...';
-  // Svuota la cache dei timestamp per forzare il fetch di tutto
+  // Clear timestamp cache to force a full fetch
   localStorage.removeItem('aiktube-video-fetch');
-  // Forza anche il resync dei canali (nuovi abbonamenti)
+  // Also force a subscription re-sync (new subscriptions)
   localStorage.removeItem('aiktube-last-sync');
   showToast('Updating...');
   await fetchSubscriptions();
@@ -1023,26 +1030,28 @@ async function forceRefreshVideos() {
 
 async function fetchChannelVideos(channelId) {
   try {
-    // 1) Ottieni l'upload playlist ID del canale (costo: 1 unità)
+    // 1) Get the channel uploads playlist ID (cost: 1 unit)
     const chData = await ytFetch('/channels', {
       part: 'contentDetails', id: channelId,
     });
     const uploadPlaylistId = chData.items?.[0]?.contentDetails?.relatedPlaylists?.uploads;
-    if (!uploadPlaylistId) return; // canale senza uploads — verrà ritentato al prossimo ciclo
+    if (!uploadPlaylistId) return; // channel with no uploads; retry on the next cycle
 
-    // 2) Prendi gli ultimi 10 video dalla playlist uploads (costo: 1 unità)
+    // 2) Get the latest 10 videos from the uploads playlist (cost: 1 unit)
     const plData = await ytFetch('/playlistItems', {
       part: 'snippet,contentDetails', playlistId: uploadPlaylistId, maxResults: '10',
     });
     const videoIds = (plData.items||[]).map(i => i.contentDetails.videoId).join(',');
     if (!videoIds) return;
 
-    // 3) Dettagli durata e views (costo: 1 unità)
+    // 3) Fetch duration and views (cost: 1 unit)
     const detailData = await ytFetch('/videos', {
       part: 'snippet,contentDetails,statistics', id: videoIds,
     });
 
     const newVideos = (detailData.items||[]).map(v => ({
+      thumbWidth: Number(v.snippet.thumbnails?.medium?.width || v.snippet.thumbnails?.default?.width || 0),
+      thumbHeight: Number(v.snippet.thumbnails?.medium?.height || v.snippet.thumbnails?.default?.height || 0),
       id:        v.id,
       title:     v.snippet.title,
       duration:  v.contentDetails.duration,
@@ -1050,14 +1059,14 @@ async function fetchChannelVideos(channelId) {
       views:     v.statistics?.viewCount || '0',
       thumb:     v.snippet.thumbnails?.medium?.url || v.snippet.thumbnails?.default?.url || '',
     }));
-    // Aggiorna solo se abbiamo ricevuto video — non cancellare la cache esistente in caso di risposta vuota
+    // Update only if we received videos; keep existing cache on empty responses
     if (newVideos.length > 0) {
       state.videos[channelId] = newVideos;
       saveState();
     }
   } catch(e) {
     console.warn('fetchChannelVideos error', channelId, e.message);
-    // Non toccare state.videos[channelId] — mantieni i dati in cache se l'API fallisce (es. quota esaurita)
+    // Keep cached videos untouched if the API fails (for example quota exhaustion)
   }
 }
 
@@ -1088,7 +1097,7 @@ function renderDeck() {
     const newCount = allVideos.filter(v => now - new Date(v.published) < 48*3600000).length;
     const loading = false; // skeleton solo durante fetch attivo, non basato sui video mancanti
     const safeListColor = safeColor(list.color, COLORS[0]);
-    const safeListName = escapeHtml(safeText(list.name, 'LISTA'));
+    const safeListName = escapeHtml(safeText(list.name, 'LIST'));
     const feedId = `feed-${safeDomId(list.id, 'list-' + idx)}`;
 
     col.style.borderLeftColor = safeListColor;
@@ -1199,7 +1208,7 @@ function renderDeck() {
   });
 
   const totalCh = new Set(state.lists.flatMap(l=>l.channels)).size;
-  document.getElementById('deck-info').textContent = `${state.lists.length} LISTE · ${totalCh} CANALI`;
+  document.getElementById('deck-info').textContent = `${state.lists.length} LISTS · ${totalCh} CHANNELS`;
 }
 
 function skeletonCards(n) {
@@ -1215,11 +1224,28 @@ function getActiveFilter() {
   return activeFilter || '1d';
 }
 
+function parseDurationSeconds(iso) {
+  if (!iso) return 0;
+  const match = safeText(iso).match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
+  if (!match) return 0;
+  return (parseInt(match[1] || 0) * 3600) + (parseInt(match[2] || 0) * 60) + parseInt(match[3] || 0);
+}
+
+function isReelVideo(video) {
+  const seconds = parseDurationSeconds(video?.duration);
+  if (seconds <= 0 || seconds > 60) return false;
+  const width = Number(video?.thumbWidth) || 0;
+  const height = Number(video?.thumbHeight) || 0;
+  if (width > 0 && height > 0) return height > width;
+  return true;
+}
+
 function filterByTime(videos) {
   const f = getActiveFilter();
   const cutoff = f === 'all' ? 0 : Date.now() - {'1d':86400000,'1w':7*86400000,'1m':30*86400000}[f];
   return videos.filter(v =>
     !dismissed.has(v.id) &&
+    !(Boolean(v?.ch?.autoDismissReels) && isReelVideo(v)) &&
     (f === 'all' || new Date(v.published).getTime() >= cutoff)
   );
 }
@@ -1232,7 +1258,7 @@ function buildFeedWithSeparators(rawVideos) {
   const now = new Date();
   const startOfToday     = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const startOfYesterday = new Date(startOfToday.getTime() - 86400000);
-  const startOfLastWeek  = new Date(startOfToday.getTime() - 8 * 86400000); // 7gg prima di ieri
+  const startOfLastWeek  = new Date(startOfToday.getTime() - 8 * 86400000); // 7 days before yesterday
 
   // bucket: 0=today, 1=yesterday, 2=last week, 3=older
   function bucket(v) {
@@ -1263,15 +1289,9 @@ function videoCardHTML(v) {
   const dur = parseDuration(v.duration);
   const ago = timeAgo(v.published);
   const isNew  = Date.now() - new Date(v.published) < 48*3600000;
-  // Reel detection: thumbnail aspect ratio (vertical = short/reel), checked onload via data attribute
-  const mightBeReel = (() => {
-    const m = (v.duration||'').match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
-    if (!m) return false;
-    const secs = (parseInt(m[1]||0)*3600)+(parseInt(m[2]||0)*60)+parseInt(m[3]||0);
-    return secs > 0 && secs <= 60;
-  })();
+  const mightBeReel = isReelVideo(v);
   const title = safeText(v.title, 'Untitled video');
-  const channelName = safeText(ch.name, 'Canale');
+  const channelName = safeText(ch.name, 'Channel');
   const channelId = safeText(ch.id);
   const videoId = safeText(v.id);
   const views = safeText(v.views || '0');
@@ -1355,7 +1375,7 @@ function openPlayer(videoId, title, channelId, chName, views, ago, duration, isR
   document.getElementById('player-ago').textContent = ago;
   document.getElementById('player-yt-link').href = currentVideoUrl;
 
-  // Prova embed nocookie
+  // Try the nocookie embed first
   const iframe = document.getElementById('yt-iframe');
   iframe.onload = onIframeLoad;
   iframe.onerror = onIframeError;
@@ -1373,12 +1393,12 @@ function openPlayer(videoId, title, channelId, chName, views, ago, duration, isR
 
 function onIframeLoad() {
   clearTimeout(iframeCheckTimer);
-  // Controlla se il contenuto è effettivamente caricato o è una pagina di errore
+  // Check whether the content actually loaded or if this is an error page
   // Non possiamo accedere al DOM dell'iframe (cross-origin), ma possiamo
   // controllare la dimensione: YouTube error pages hanno height <100px
   try {
     const iframe = document.getElementById('yt-iframe');
-    // Se src è vuoto (player appena chiuso) ignora
+    // Ignore if src is empty (player just closed)
     if (!iframe.src || iframe.src === 'about:blank') return;
   } catch(e) {}
 }
@@ -1389,11 +1409,11 @@ function onIframeError() {
 }
 
 function checkIframeFailed() {
-  // Verifica se l'iframe ha caricato qualcosa di utile
+  // Check whether the iframe loaded anything useful
   const iframe = document.getElementById('yt-iframe');
   if (!iframe.src || iframe.src === 'about:blank') return;
-  // Se siamo ancora qui dopo 4s e non abbiamo avuto segnali, non facciamo nulla
-  // (il video sta caricando normalmente — connessioni lente)
+  // If we are still here after 4s with no signals, do nothing
+  // (the video is likely loading normally on a slow connection)
 }
 
 function fallbackToYouTube() {
@@ -1424,20 +1444,20 @@ function saveSetup() {
   const clientId = document.getElementById('setup-client-id').value.trim();
   const clientSecret = document.getElementById('setup-client-secret').value.trim();
   if (!clientId || !clientSecret) { showToast('Enter Client ID and Secret', true); return; }
-  // Salva sul server (che li mette in aiktube-config.json)
+  // Save on the server (which stores them in aiktube-config.json)
   apiFetch('/api/config', {
     method: 'POST',
     headers: {'Content-Type': 'application/json'},
     body: JSON.stringify({clientId, clientSecret}),
   }).then(async r => {
     const data = await readJsonSafe(r);
-    if (!r.ok || data?.error) throw new Error(data?.error || 'config non salvata');
+    if (!r.ok || data?.error) throw new Error(data?.error || 'config not saved');
     state.clientId = clientId;
     state.useMockup = false;
     saveState();
     hideSetup();
     startOAuth();
-  }).catch(err => showToast('Errore: ' + (err.message || 'server non attivo?'), true));
+  }).catch(err => showToast('Error: ' + (err.message || 'server not running?'), true));
 }
 function useMockup() {
   state.useMockup = true;
@@ -1473,7 +1493,7 @@ function buildChChecklist(filter='') {
       <label class="ch-item">
         <input type="checkbox" data-channel-id="${escapeAttr(ch.id)}" ${selChannels.has(ch.id)?'checked':''}>
         ${renderChannelThumb(ch)}
-        <span class="ch-name">${escapeHtml(safeText(ch.name, 'Canale'))}</span>
+        <span class="ch-name">${escapeHtml(safeText(ch.name, 'Channel'))}</span>
         <div class="card-dot" style="background:${safeColor(ch.color, COLORS[0])};width:7px;height:7px;flex-shrink:0"></div>
       </label>`).join('');
   checklist.querySelectorAll('input[data-channel-id]').forEach(input => {
@@ -1528,7 +1548,7 @@ function saveList() {
       channels: channelIds,
     });
   }
-  // Se autenticati, carica video dei nuovi canali
+  // If authenticated, load videos for newly added channels
   if (isAuthed()) {
     const newChs = channelIds.filter(id => !state.videos[id]);
     Promise.allSettled(newChs.map(fetchChannelVideos)).then(() => renderDeck());
@@ -1612,7 +1632,7 @@ function toggleUnassigned() {
   showOnlyUnassigned = !showOnlyUnassigned;
   const btn = document.getElementById('unassigned-toggle');
   if (btn) {
-    btn.textContent = showOnlyUnassigned ? 'SENZA LISTA' : 'TUTTI';
+    btn.textContent = showOnlyUnassigned ? 'UNASSIGNED' : 'ALL';
     btn.classList.toggle('active', showOnlyUnassigned);
   }
   openManageChannelsModal();
@@ -1627,14 +1647,26 @@ function assignChannelToList(channelId, listId) {
     list.channels = ids.filter(id => id !== channelId);
     saveState();
     renderDeck();
-    showToast(`Rimosso da "${safeText(list.name)}" ✓`);
+    showToast(`Removed from "${safeText(list.name)}" ✓`);
   } else {
     list.channels = [...ids, channelId];
     saveState();
     renderDeck();
-    showToast(`Aggiunto a "${safeText(list.name)}" ✓`);
+    showToast(`Added to "${safeText(list.name)}" ✓`);
   }
   openManageChannelsModal();
+}
+
+function toggleChannelAutoDismissReels(channelId, enabled) {
+  const channel = state.channels.find(ch => ch.id === channelId);
+  if (!channel) return;
+  channel.autoDismissReels = Boolean(enabled);
+  saveState();
+  renderDeck();
+  const channelName = safeText(channel.name, 'Channel');
+  showToast(enabled
+    ? `Reels auto-dismiss enabled for "${channelName}" ✓`
+    : `Reels restored for "${channelName}" ✓`);
 }
 
 function openManageChannelsModal() {
@@ -1646,7 +1678,7 @@ function openManageChannelsModal() {
 
   if (visibleChannels.length === 0) {
     body.innerHTML = `<div style="font-family:var(--mono);font-size:.6rem;color:var(--muted);padding:12px;line-height:1.8">
-      ${showOnlyUnassigned ? 'All channels are already in at least one list.' : 'Nessun canale disponibile.'}
+      ${showOnlyUnassigned ? 'All channels are already in at least one list.' : 'No channels available.'}
     </div>`;
   } else {
     const listOptions = state.lists.map(l =>
@@ -1656,14 +1688,20 @@ function openManageChannelsModal() {
     body.innerHTML = visibleChannels.map(ch => {
       const inLists = state.lists
         .filter(l => normalizeChannelIds(l.channels).includes(ch.id))
-        .map(l => safeText(l.name, 'Lista'));
+        .map(l => safeText(l.name, 'List'));
       return `<div class="ch-list-row">
         ${renderChannelThumb(ch)}
-        <span class="ch-list-name" title="${escapeAttr(safeText(ch.name))}">${escapeHtml(safeText(ch.name, 'Canale'))}</span>
-        <select class="ch-list-select" data-channel-id="${escapeAttr(ch.id)}" onchange="assignChannelToList('${escapeAttr(ch.id)}', this.value)">
-          <option value="">${inLists.length > 0 ? '+ ' + inLists.join(', ') : '+ Lista…'}</option>
-          ${listOptions}
-        </select>
+        <span class="ch-list-name" title="${escapeAttr(safeText(ch.name))}">${escapeHtml(safeText(ch.name, 'Channel'))}</span>
+        <div class="ch-list-tools">
+          <label class="ch-reel-toggle" title="Automatically hide shorts and reels from this channel">
+            <input type="checkbox" ${ch.autoDismissReels ? 'checked' : ''} onchange="toggleChannelAutoDismissReels('${escapeAttr(ch.id)}', this.checked)">
+            <span>No reels</span>
+          </label>
+          <select class="ch-list-select" data-channel-id="${escapeAttr(ch.id)}" onchange="assignChannelToList('${escapeAttr(ch.id)}', this.value)">
+            <option value="">${inLists.length > 0 ? '+ ' + inLists.join(', ') : '+ List…'}</option>
+            ${listOptions}
+          </select>
+        </div>
       </div>`;
     }).join('');
   }
@@ -1751,7 +1789,7 @@ async function readJsonSafe(response) {
   }
 }
 
-function getApiErrorMessage(payload, fallback='Errore inatteso') {
+function getApiErrorMessage(payload, fallback='Unexpected error') {
   if (!payload) return fallback;
   if (typeof payload.error === 'string' && payload.error) return payload.error;
   if (typeof payload.details?.error?.message === 'string' && payload.details.error.message) {
@@ -1808,7 +1846,7 @@ function normalizeChannelIds(ids) {
 function normalizeList(raw, index=0) {
   return {
     id: safeText(raw?.id).trim() || uid(),
-    name: safeText(raw?.name, 'New list').trim() || `Lista ${index + 1}`,
+    name: safeText(raw?.name, 'New list').trim() || `List ${index + 1}`,
     color: safeColor(raw?.color, COLORS[index % COLORS.length]),
     channels: normalizeChannelIds(raw?.channels),
   };
@@ -1824,7 +1862,8 @@ function normalizeChannel(raw, index=0) {
   if (!id) return null;
   return {
     id,
-    name: safeText(raw?.name, 'Canale').trim() || 'Canale',
+    autoDismissReels: Boolean(raw?.autoDismissReels),
+    name: safeText(raw?.name, 'Channel').trim() || 'Channel',
     thumb: safeImageUrl(raw?.thumb),
     color: safeColor(raw?.color, COLORS[index % COLORS.length]),
   };
@@ -1838,7 +1877,7 @@ function normalizeChannels(channels) {
 }
 
 function renderChannelThumb(ch) {
-  const channelName = safeText(ch?.name, 'Canale');
+  const channelName = safeText(ch?.name, 'Channel');
   const thumb = safeImageUrl(ch?.thumb);
   const color = safeColor(ch?.color, COLORS[0]);
 
