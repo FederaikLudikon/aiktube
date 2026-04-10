@@ -155,9 +155,24 @@ header {
 .btn.filter.active { color:var(--terra-m); border-color:var(--terra-m); background:rgba(184,136,122,.08); }
 
 #auth-btn { min-width:110px; }
+.btn.icon-btn { min-width:32px; width:32px; padding:6px 0; justify-content:center; }
 
 .header-right { margin-left:auto; display:flex; align-items:center; gap:8px; }
 .header-info { font-family:var(--mono); font-size:.55rem; color:var(--muted); text-align:right; line-height:1.8; }
+.deck-scrollbar {
+  flex-shrink: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  height: 6px;
+  background: #d4a8a8;
+  scrollbar-width: thin;
+  scrollbar-color: #7a4040 #d4a8a8;
+}
+.deck-scrollbar.hidden { display: none; }
+.deck-scrollbar-track { height: 1px; }
+.deck-scrollbar::-webkit-scrollbar { height: 2px; }
+.deck-scrollbar::-webkit-scrollbar-track { background: #d4a8a8; }
+.deck-scrollbar::-webkit-scrollbar-thumb { background: #7a4040; }
 
 /* ── LOADING SCREEN ── */
 #loading-screen {
@@ -198,7 +213,11 @@ header {
 .setup-actions { display:flex; gap:8px; margin-top:24px; }
 
 /* ── DECK ── */
-.deck-wrap { flex:1; overflow-x:auto; overflow-y:hidden; display:flex; align-items:stretch; padding:5px; }
+.deck-wrap {
+  flex:1; overflow-x:auto; overflow-y:hidden; display:flex; align-items:stretch; padding:5px;
+  scrollbar-width:none; -ms-overflow-style:none;
+}
+.deck-wrap::-webkit-scrollbar { display:none; width:0; height:0; }
 .deck { display:flex; align-items:stretch; min-height:100%; gap:10px; }
 
 .col {
@@ -487,8 +506,8 @@ body.thumb-compact .video-card::after { content: ''; display: table; clear: both
     </div>
 
     <div class="setup-actions">
-      <button class="btn primary" onclick="saveSetup()">SAVE &amp; CONNECT</button>
-      <button class="btn" onclick="useMockup()">USE MOCKUP DATA</button>
+      <button class="btn primary" onclick="saveSetup()" title="Save the configuration and connect YouTube">SAVE &amp; CONNECT</button>
+      <button class="btn" onclick="useMockup()" title="Load local demo data">USE MOCKUP DATA</button>
     </div>
   </div>
 </div>
@@ -497,24 +516,25 @@ body.thumb-compact .video-card::after { content: ''; display: table; clear: both
 <header>
   <div class="logo">AIK<em>TUBE</em></div>
   <div class="sep"></div>
-  <button class="btn primary" onclick="openNewListModal()">+ LIST</button>
-  <button class="btn" onclick="openManageChannelsModal()">⚙ CHANNELS</button>
+  <button class="btn primary" onclick="openNewListModal()" title="Create a new list">+ LIST</button>
+  <button class="btn" onclick="openManageChannelsModal()" title="Manage channels and assignments">⚙ CHANNELS</button>
   <div class="sep"></div>
-  <button class="btn filter" id="filter-all" onclick="setFilter('all')">ALL</button>
-  <button class="btn filter" id="filter-1d" onclick="setFilter('1d')">1D</button>
-  <button class="btn filter active" id="filter-1w" onclick="setFilter('1w')">1W</button>
-  <button class="btn filter" id="filter-1m" onclick="setFilter('1m')">1M</button>
+  <button class="btn filter" id="filter-all" onclick="setFilter('all')" title="Show all videos">ALL</button>
+  <button class="btn filter" id="filter-1d" onclick="setFilter('1d')" title="Show only the last day">1D</button>
+  <button class="btn filter active" id="filter-1w" onclick="setFilter('1w')" title="Show only the last week">1W</button>
+  <button class="btn filter" id="filter-1m" onclick="setFilter('1m')" title="Show only the last month">1M</button>
   <div class="sep"></div>
-  <button class="btn" id="refresh-btn" onclick="forceRefreshVideos()">↺ REFRESH</button>
+  <button class="btn icon-btn" id="refresh-btn" onclick="refreshNewVideos()" title="Load only new videos">↺</button>
   <button class="btn filter" id="avatar-toggle" onclick="toggleAvatars()" title="Show/hide channel avatars">◉ AVATAR</button>
   <button class="btn filter" id="compact-toggle" onclick="toggleCompact()" title="Compact thumbnails">▤ COMPACT</button>
-  <button class="btn filter" id="forest-toggle" onclick="toggleForest()" title="Forest theme">🌿</button>
+  <button class="btn filter" id="forest-toggle" onclick="toggleForest()" title="Toggle the forest theme">🌿</button>
   <div class="sep"></div>
-  <button class="btn sand" onclick="exportJSON()">↓ EXPORT</button>
-  <button class="btn sand" onclick="triggerImport()">↑ IMPORT</button>
+  <button class="btn sand" onclick="exportJSON()" title="Export data and settings to JSON">↓ EXPORT</button>
+  <button class="btn sand" onclick="triggerImport()" title="Import data and settings from JSON">↑ IMPORT</button>
   <input type="file" id="import-input" accept=".json" style="display:none" onchange="importJSON(event)">
   <div class="header-right">
-    <button class="btn terra" id="auth-btn" onclick="handleAuthBtn()">CONNECT YT</button>
+    <button class="btn" id="force-refresh-btn" onclick="forceRefreshVideos()" title="Force a full refresh of channels and videos">FORCE REFRESH</button>
+    <button class="btn terra" id="auth-btn" onclick="handleAuthBtn()" title="Connect or disconnect YouTube">CONNECT YT</button>
     <div class="header-info">
       <span id="deck-info">0 LISTS</span><br>
       <span id="auth-status" style="color:var(--muted)">not authenticated</span>
@@ -522,9 +542,11 @@ body.thumb-compact .video-card::after { content: ''; display: table; clear: both
   </div>
 </header>
 
-<div class="deck-wrap">
+<div class="deck-scrollbar hidden" id="deck-scrollbar"><div class="deck-scrollbar-track" id="deck-scrollbar-track"></div></div>
+
+<div class="deck-wrap" id="deck-wrap">
   <div class="deck" id="deck"></div>
-  <button class="add-col-btn" onclick="openNewListModal()">
+  <button class="add-col-btn" onclick="openNewListModal()" title="Create a new list">
     <span class="plus">+</span><span>New list</span>
   </button>
 </div>
@@ -534,7 +556,7 @@ body.thumb-compact .video-card::after { content: ''; display: table; clear: both
   <div class="modal">
     <div class="modal-hd">
       <div class="modal-title" id="list-modal-title">NEW LIST</div>
-      <button class="modal-x" onclick="closeModal('list-modal')">✕</button>
+      <button class="modal-x" onclick="closeModal('list-modal')" title="Close window">✕</button>
     </div>
     <div class="modal-body">
       <div class="form-grp">
@@ -552,8 +574,8 @@ body.thumb-compact .video-card::after { content: ''; display: table; clear: both
       </div>
     </div>
     <div class="modal-ft">
-      <button class="btn" onclick="closeModal('list-modal')">Cancel</button>
-      <button class="btn primary" onclick="saveList()">SAVE</button>
+      <button class="btn" onclick="closeModal('list-modal')" title="Cancel changes">Cancel</button>
+      <button class="btn primary" onclick="saveList()" title="Save the list">SAVE</button>
     </div>
   </div>
 </div>
@@ -563,14 +585,14 @@ body.thumb-compact .video-card::after { content: ''; display: table; clear: both
   <div class="modal">
     <div class="modal-hd">
       <div class="modal-title">AVAILABLE CHANNELS</div>
-      <button class="btn" id="unassigned-toggle" onclick="toggleUnassigned()" style="font-size:.48rem;padding:3px 8px">ALL</button>
-      <button class="modal-x" onclick="closeModal('channels-modal')">✕</button>
+      <button class="btn" id="unassigned-toggle" onclick="toggleUnassigned()" style="font-size:.48rem;padding:3px 8px" title="Show or hide unassigned channels">ALL</button>
+      <button class="modal-x" onclick="closeModal('channels-modal')" title="Close window">✕</button>
     </div>
     <div class="modal-body">
       <div id="channels-list-body"></div>
     </div>
     <div class="modal-ft">
-      <button class="btn primary" onclick="closeModal('channels-modal')">CLOSE</button>
+      <button class="btn primary" onclick="closeModal('channels-modal')" title="Close channel manager">CLOSE</button>
     </div>
   </div>
 </div>
@@ -580,7 +602,7 @@ body.thumb-compact .video-card::after { content: ''; display: table; clear: both
   <div class="modal player-modal">
     <div class="modal-hd">
       <div class="modal-title" id="player-ch-title">VIDEO</div>
-      <button class="modal-x" onclick="closePlayer()">✕</button>
+      <button class="modal-x" onclick="closePlayer()" title="Close player">✕</button>
     </div>
     <div class="player-wrap">
       <iframe id="yt-iframe" src="" allowfullscreen allow="autoplay; encrypted-media"
@@ -592,7 +614,7 @@ body.thumb-compact .video-card::after { content: ''; display: table; clear: both
         <a class="channel-link" id="player-ch" target="_blank" rel="noopener noreferrer"></a>
         <span id="player-views"></span>
         <span id="player-ago"></span>
-        <button class="player-dismiss" id="player-dismiss-btn" onclick="dismissFromPlayer()">✓ DISMISS</button>
+        <button class="player-dismiss" id="player-dismiss-btn" onclick="dismissFromPlayer()" title="Remove this video from the feed">✓ DISMISS</button>
         <a class="player-yt-link" id="player-yt-link" target="_blank">↗ Open on YouTube</a>
       </div>
     </div>
@@ -656,6 +678,7 @@ let currentVideoId = null;
 let currentVideoUrl = null;
 let iframeCheckTimer = null;
 let playerIsPlaying = false;
+let syncingDeckScroll = false;
 
 // ─────────────────────────────────────────────────────────
 // PERSIST
@@ -668,18 +691,21 @@ function loadState() {
     state.tokenExpiry = Number(saved.tokenExpiry) || 0;
     state.lists       = normalizeLists(saved.lists);
     state.channels    = normalizeChannels(saved.channels);
+    state.videos      = normalizeVideosByChannel(saved.videos);
     state.useMockup   = Boolean(saved.useMockup);
   } catch(e) {}
 }
 function saveState() {
   state.lists = normalizeLists(state.lists);
   state.channels = normalizeChannels(state.channels);
+  state.videos = normalizeVideosByChannel(state.videos);
   localStorage.setItem(STORAGE_KEY, JSON.stringify({
     clientId:    state.clientId,
     accessToken: state.accessToken,
     tokenExpiry: state.tokenExpiry,
     lists:       state.lists,
     channels:    state.channels,
+    videos:      state.videos,
     useMockup:   state.useMockup,
   }));
 }
@@ -792,7 +818,8 @@ async function initReal() {
       await sleep(300);
     } catch(e) {
       console.warn('API error during init:', e.message);
-      showToast('API quota exhausted — using cache', true);
+      if (quotaExhausted) notifyQuotaExhausted('YouTube API quota exhausted — using cache until the daily reset');
+      else showToast('API error — using cache', true);
       setLoading('Ready (cache).', 100);
       await sleep(300);
     }
@@ -936,9 +963,19 @@ function updateAuthUI(authed) {
 // YOUTUBE API
 // ─────────────────────────────────────────────────────────
 let quotaExhausted = false;
+let quotaToastShown = false;
+
+function notifyQuotaExhausted(message='YouTube API quota exhausted — retry after the daily reset') {
+  if (quotaToastShown) return;
+  quotaToastShown = true;
+  showToast(message, true);
+}
 
 async function ytFetch(endpoint, params={}) {
-  if (quotaExhausted) throw new Error('quota exhausted — retry tomorrow');
+  if (quotaExhausted) {
+    notifyQuotaExhausted();
+    throw new Error('quota exhausted — retry after the daily reset');
+  }
   const ytUrl = new URL(YT_API_BASE + endpoint);
   Object.entries(params).forEach(([k,v]) => ytUrl.searchParams.set(k,v));
   const proxyUrl = '/api/youtube?url=' + encodeURIComponent(ytUrl.toString());
@@ -947,7 +984,8 @@ async function ytFetch(endpoint, params={}) {
 
   if (res.status === 403) {
     quotaExhausted = true;
-    throw new Error('YouTube API quota exhausted — retry tomorrow');
+    notifyQuotaExhausted();
+    throw new Error('YouTube API quota exhausted — retry after the daily reset');
   }
   if (res.status === 401) {
     state.accessToken = ''; saveState(); updateAuthUI(false);
@@ -1028,20 +1066,49 @@ async function fetchRecentVideos() {
 
 async function forceRefreshVideos() {
   if (!isAuthed()) { showToast('Connect YouTube first', true); return; }
-  const btn = document.getElementById('refresh-btn');
+  const btn = document.getElementById('force-refresh-btn');
+  const originalLabel = btn.textContent;
   btn.disabled = true;
-  btn.textContent = '↺ ...';
+  btn.textContent = '...';
   // Clear timestamp cache to force a full fetch
   localStorage.removeItem('aiktube-video-fetch');
   // Also force a subscription re-sync (new subscriptions)
   localStorage.removeItem('aiktube-last-sync');
   showToast('Updating...');
-  await fetchSubscriptions();
-  await fetchRecentVideos();
-  renderDeck();
-  btn.disabled = false;
-  btn.textContent = '↺ AGGIORNA';
-  showToast('Feed updated ✓');
+  try {
+    await fetchSubscriptions();
+    await fetchRecentVideos();
+    renderDeck();
+    if (!quotaExhausted) showToast('Feed updated ✓');
+  } catch (errorObj) {
+    console.warn('forceRefreshVideos error', errorObj?.message || errorObj);
+    if (quotaExhausted) notifyQuotaExhausted();
+    else showToast(errorObj?.message || 'Refresh failed', true);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = originalLabel;
+  }
+}
+
+async function refreshNewVideos() {
+  if (!isAuthed()) { showToast('Connect YouTube first', true); return; }
+  const btn = document.getElementById('refresh-btn');
+  const originalLabel = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = '...';
+  showToast('Loading new videos...');
+  try {
+    await fetchRecentVideos();
+    renderDeck();
+    if (!quotaExhausted) showToast('New videos loaded ✓');
+  } catch (errorObj) {
+    console.warn('refreshNewVideos error', errorObj?.message || errorObj);
+    if (quotaExhausted) notifyQuotaExhausted();
+    else showToast(errorObj?.message || 'Video refresh failed', true);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = originalLabel;
+  }
 }
 
 async function fetchChannelVideos(channelId) {
@@ -1118,23 +1185,27 @@ function renderDeck() {
 
     col.style.borderLeftColor = safeListColor;
 
+    const channelCount = normalizeChannelIds(list.channels).length;
+
     col.innerHTML = `
       <div class="col-header">
         <div class="col-dot" style="background:${safeListColor}"></div>
         <div class="col-title">${safeListName}</div>
         <div class="col-actions">
-          <button class="col-btn" data-action="edit-list" type="button">✎</button>
-          <button class="col-btn danger" data-action="delete-list" type="button">✕</button>
+          <button class="col-btn" data-action="edit-list" type="button" title="Edit list">✎</button>
+          <button class="col-btn danger" data-action="delete-list" type="button" title="Delete list">✕</button>
         </div>
       </div>
       <div class="col-meta">
-        ${normalizeChannelIds(list.channels).length} CH · ${allVideos.length} VID${newCount>0?` · <span class="col-new">${newCount} NEW</span>`:''}
+        ${channelCount} CH · ${allVideos.length} VID${newCount>0?` · <span class="col-new">${newCount} NEW</span>`:''}
       </div>
       <div class="col-feed" id="${feedId}">
         ${loading
           ? skeletonCards(4)
           : allVideos.length===0
-            ? `<div class="col-empty"><span class="ei">▣</span><p>No channels.<br>Click ✎ to add some.</p></div>`
+            ? channelCount === 0
+              ? `<div class="col-empty"><span class="ei">▣</span><p>No channels.<br>Click ✎ to add some.</p></div>`
+              : `<div class="col-empty"><span class="ei">◌</span><p>No videos available.<br>Try ↺ refresh.</p></div>`
             : buildFeedWithSeparators(allVideos)
         }
       </div>
@@ -1225,6 +1296,7 @@ function renderDeck() {
 
   const totalCh = new Set(state.lists.flatMap(l=>l.channels)).size;
   document.getElementById('deck-info').textContent = `${state.lists.length} LISTS · ${totalCh} CHANNELS`;
+  syncDeckScrollbarWidth();
 }
 
 function skeletonCards(n) {
@@ -1945,6 +2017,40 @@ function safeDomId(value, fallback='node') {
   return sanitized || fallback;
 }
 
+function bindDeckScrollbar() {
+  const deckWrap = document.getElementById('deck-wrap');
+  const deckScrollbar = document.getElementById('deck-scrollbar');
+  if (!deckWrap || !deckScrollbar || deckScrollbar.dataset.bound === '1') return;
+  deckScrollbar.dataset.bound = '1';
+
+  deckScrollbar.addEventListener('scroll', () => {
+    if (syncingDeckScroll) return;
+    syncingDeckScroll = true;
+    deckWrap.scrollLeft = deckScrollbar.scrollLeft;
+    syncingDeckScroll = false;
+  });
+
+  deckWrap.addEventListener('scroll', () => {
+    if (syncingDeckScroll) return;
+    syncingDeckScroll = true;
+    deckScrollbar.scrollLeft = deckWrap.scrollLeft;
+    syncingDeckScroll = false;
+  });
+
+  window.addEventListener('resize', syncDeckScrollbarWidth);
+}
+
+function syncDeckScrollbarWidth() {
+  const deckWrap = document.getElementById('deck-wrap');
+  const deckScrollbar = document.getElementById('deck-scrollbar');
+  const track = document.getElementById('deck-scrollbar-track');
+  if (!deckWrap || !deckScrollbar || !track) return;
+
+  track.style.width = `${deckWrap.scrollWidth}px`;
+  deckScrollbar.scrollLeft = deckWrap.scrollLeft;
+  deckScrollbar.classList.toggle('hidden', deckWrap.scrollWidth <= deckWrap.clientWidth + 1);
+}
+
 function registerAppShell() {
   if (!('serviceWorker' in navigator)) return;
   window.addEventListener('load', () => {
@@ -1983,6 +2089,35 @@ function normalizeChannel(raw, index=0) {
     thumb: safeImageUrl(raw?.thumb),
     color: safeColor(raw?.color, COLORS[index % COLORS.length]),
   };
+}
+
+function normalizeVideo(raw) {
+  const id = safeText(raw?.id).trim();
+  if (!id) return null;
+  return {
+    id,
+    title: safeText(raw?.title, 'Untitled video'),
+    duration: safeText(raw?.duration),
+    published: safeText(raw?.published),
+    views: safeText(raw?.views || '0'),
+    thumb: safeImageUrl(raw?.thumb),
+    thumbWidth: Number(raw?.thumbWidth) || 0,
+    thumbHeight: Number(raw?.thumbHeight) || 0,
+  };
+}
+
+function normalizeVideoList(videos) {
+  if (!Array.isArray(videos)) return [];
+  return videos.map(normalizeVideo).filter(Boolean);
+}
+
+function normalizeVideosByChannel(videoMap) {
+  if (!videoMap || typeof videoMap !== 'object' || Array.isArray(videoMap)) return {};
+  return Object.fromEntries(
+    Object.entries(videoMap)
+      .map(([channelId, videos]) => [safeText(channelId).trim(), normalizeVideoList(videos)])
+      .filter(([channelId]) => Boolean(channelId))
+  );
 }
 
 function normalizeChannels(channels) {
@@ -2041,6 +2176,7 @@ function formatViews(n) {
 // ─────────────────────────────────────────────────────────
 // START
 // ─────────────────────────────────────────────────────────
+bindDeckScrollbar();
 registerAppShell();
 init();
 </script>

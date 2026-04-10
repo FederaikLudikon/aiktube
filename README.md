@@ -142,7 +142,7 @@ Done. AikTube loads your subscriptions and you can start building lists.
 
 ## API quota
 
-Free tier: **10,000 units/day**, resets at midnight Pacific (09:00 CET).
+Free tier: **10,000 units/day**, resets daily at midnight Pacific Time.
 
 | Action | Units |
 |---|---|
