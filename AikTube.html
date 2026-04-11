@@ -537,7 +537,8 @@ body.thumb-compact .video-card::after { content: ''; display: table; clear: both
     <button class="btn terra" id="auth-btn" onclick="handleAuthBtn()" title="Connect or disconnect YouTube">CONNECT YT</button>
     <div class="header-info">
       <span id="deck-info">0 LISTS</span><br>
-      <span id="auth-status" style="color:var(--muted)">not authenticated</span>
+      <span id="auth-status" style="color:var(--muted)">not authenticated</span><br>
+      <span id="server-status" style="color:var(--muted)">server offline</span>
     </div>
   </div>
 </header>
@@ -844,10 +845,18 @@ function isAuthed() {
   return !!state.accessToken && Date.now() < state.tokenExpiry;
 }
 
+function setServerStatus(online) {
+  const status = document.getElementById('server-status');
+  if (!status) return;
+  status.textContent = online ? 'server online' : 'server offline';
+  status.style.color = online ? 'var(--sage-m)' : 'var(--muted)';
+}
+
 async function checkServerAuth() {
   try {
     const r = await apiFetch('/api/auth/status');
     const d = await readJsonSafe(r);
+    setServerStatus(true);
     if (r.ok && d?.authed) {
       state.accessToken = 'server';
       state.tokenExpiry = Date.now() + 3600000;
@@ -859,6 +868,7 @@ async function checkServerAuth() {
     saveState();
     return false;
   } catch {
+    setServerStatus(false);
     state.accessToken = '';
     state.tokenExpiry = 0;
     saveState();
@@ -866,10 +876,20 @@ async function checkServerAuth() {
   }
 }
 
+async function ensureServerAuthed(message='Connect YouTube first') {
+  if (isAuthed()) return true;
+  const authed = await checkServerAuth();
+  updateAuthUI(authed);
+  if (authed) return true;
+  showToast(message, true);
+  return false;
+}
+
 async function startOAuth() {
   try {
     const r = await apiFetch('/api/auth/start');
     const data = await readJsonSafe(r);
+    setServerStatus(true);
     if (!r.ok || data?.error || !data?.url) {
       showToast('Error: ' + (data?.error || 'auth start failed'), true);
       return;
@@ -906,6 +926,7 @@ async function startOAuth() {
       }
     });
   } catch {
+    setServerStatus(false);
     showToast('Server unreachable', true);
   }
 }
@@ -920,8 +941,9 @@ async function logout() {
       return;
     }
   } catch (e) {
+    setServerStatus(false);
     console.warn('logout failed', e);
-    showToast('Logout failed - server unreachable', true);
+    showToast('Logout failed — server unreachable', true);
     return;
   }
   state.accessToken = '';
@@ -1065,7 +1087,7 @@ async function fetchRecentVideos() {
 }
 
 async function forceRefreshVideos() {
-  if (!isAuthed()) { showToast('Connect YouTube first', true); return; }
+  if (!(await ensureServerAuthed('Connect YouTube first'))) return;
   const btn = document.getElementById('force-refresh-btn');
   const originalLabel = btn.textContent;
   btn.disabled = true;
@@ -1091,7 +1113,7 @@ async function forceRefreshVideos() {
 }
 
 async function refreshNewVideos() {
-  if (!isAuthed()) { showToast('Connect YouTube first', true); return; }
+  if (!(await ensureServerAuthed('Connect YouTube first'))) return;
   const btn = document.getElementById('refresh-btn');
   const originalLabel = btn.textContent;
   btn.disabled = true;
