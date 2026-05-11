@@ -1,7 +1,6 @@
-const CACHE_NAME = 'aiktube-shell-v1';
+const CACHE_NAME = 'aiktube-shell-v2';
 const APP_SHELL = [
   '/',
-  '/AikTube.html',
   '/manifest.json',
   '/favicon.ico',
   '/AikTubeIcon.png',
@@ -35,7 +34,7 @@ self.addEventListener('fetch', event => {
 
   if (request.mode === 'navigate') {
     event.respondWith(
-      fetch(request).catch(() => caches.match('/AikTube.html'))
+      fetch(request).catch(() => caches.match('/'))
     );
     return;
   }

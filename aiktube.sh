@@ -27,9 +27,9 @@ if /usr/sbin/lsof -Pi :$PORT -sTCP:LISTEN -t >/dev/null 2>&1; then
   echo "Server already running on :$PORT"
 else
   echo "Starting AikTube server..."
-  /opt/homebrew/bin/node server.js &
+  nohup /opt/homebrew/bin/node server.js >/tmp/aiktube-server.log 2>&1 &
   sleep 1
 fi
 
 echo "Opening Brave..."
-open -a "Brave Browser" "http://localhost:$PORT/AikTube.html"
+open -a "Brave Browser" "http://localhost:$PORT/"

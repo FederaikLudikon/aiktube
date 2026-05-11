@@ -533,6 +533,7 @@ body.thumb-compact .video-card::after { content: ''; display: table; clear: both
   <button class="btn sand" onclick="triggerImport()" title="Import data and settings from JSON">↑ IMPORT</button>
   <input type="file" id="import-input" accept=".json" style="display:none" onchange="importJSON(event)">
   <div class="header-right">
+    <button class="btn" id="install-pwa-btn" onclick="installPwa()" title="Install AikTube as an app" hidden>INSTALL</button>
     <button class="btn" id="force-refresh-btn" onclick="forceRefreshVideos()" title="Force a full refresh of channels and videos">FORCE REFRESH</button>
     <button class="btn terra" id="auth-btn" onclick="handleAuthBtn()" title="Connect or disconnect YouTube">CONNECT YT</button>
     <div class="header-info">
@@ -1200,6 +1201,7 @@ function renderDeck() {
 
     const now = Date.now();
     const newCount = allVideos.filter(v => now - new Date(v.published) < 48*3600000).length;
+    const visibleVideos = filterByTime(allVideos);
     const loading = false; // skeleton solo durante fetch attivo, non basato sui video mancanti
     const safeListColor = safeColor(list.color, COLORS[0]);
     const safeListName = escapeHtml(safeText(list.name, 'LIST'));
@@ -1214,6 +1216,7 @@ function renderDeck() {
         <div class="col-dot" style="background:${safeListColor}"></div>
         <div class="col-title">${safeListName}</div>
         <div class="col-actions">
+          <button class="col-btn" data-action="dismiss-column" type="button" title="Dismiss all visible videos in this column" ${visibleVideos.length === 0 ? 'disabled' : ''}>✓✓</button>
           <button class="col-btn" data-action="edit-list" type="button" title="Edit list">✎</button>
           <button class="col-btn danger" data-action="delete-list" type="button" title="Delete list">✕</button>
         </div>
@@ -1236,6 +1239,10 @@ function renderDeck() {
     col.querySelector('[data-action="edit-list"]')?.addEventListener('click', e => {
       e.stopPropagation();
       editList(list.id);
+    });
+    col.querySelector('[data-action="dismiss-column"]')?.addEventListener('click', e => {
+      e.stopPropagation();
+      dismissColumnVideos(list.name, visibleVideos);
     });
     col.querySelector('[data-action="delete-list"]')?.addEventListener('click', e => {
       e.stopPropagation();
@@ -1765,6 +1772,18 @@ function dismissVideo(videoId, cardEl) {
   showToastWithUndo('Video dismissed');
 }
 
+function dismissColumnVideos(listName, videos) {
+  const videoIds = [...new Set((videos || []).map(video => safeText(video?.id).trim()).filter(Boolean))];
+  if (videoIds.length === 0) {
+    showToast('No videos to dismiss');
+    return;
+  }
+  videoIds.forEach(videoId => dismissed.add(videoId));
+  localStorage.setItem('aiktube-dismissed', JSON.stringify([...dismissed]));
+  renderDeck();
+  showToast(`${videoIds.length} videos dismissed from "${safeText(listName, 'List')}" ✓`);
+}
+
 function undoDismiss() {
   if (undoHistory.length === 0) return;
   const videoId = undoHistory.pop();
@@ -2082,6 +2101,40 @@ function registerAppShell() {
   }, { once: true });
 }
 
+let deferredInstallPrompt = null;
+
+function bindPwaInstallPrompt() {
+  const installBtn = document.getElementById('install-pwa-btn');
+  if (!installBtn) return;
+
+  window.addEventListener('beforeinstallprompt', event => {
+    event.preventDefault();
+    deferredInstallPrompt = event;
+    installBtn.hidden = false;
+  });
+
+  window.addEventListener('appinstalled', () => {
+    deferredInstallPrompt = null;
+    installBtn.hidden = true;
+    showToast('AikTube installed ✓');
+  });
+}
+
+async function installPwa() {
+  const installBtn = document.getElementById('install-pwa-btn');
+  if (!deferredInstallPrompt) {
+    showToast('Install is not available right now', true);
+    return;
+  }
+
+  installBtn.disabled = true;
+  deferredInstallPrompt.prompt();
+  await deferredInstallPrompt.userChoice.catch(() => null);
+  deferredInstallPrompt = null;
+  installBtn.hidden = true;
+  installBtn.disabled = false;
+}
+
 function normalizeChannelIds(ids) {
   if (!Array.isArray(ids)) return [];
   return [...new Set(ids.map(id => safeText(id).trim()).filter(Boolean))];
@@ -2200,6 +2253,7 @@ function formatViews(n) {
 // ─────────────────────────────────────────────────────────
 bindDeckScrollbar();
 registerAppShell();
+bindPwaInstallPrompt();
 init();
 </script>
 </body>

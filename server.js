@@ -270,6 +270,7 @@ const server = http.createServer(async (req, res) => {
 
   const reqUrl = new URL(req.url, ORIGIN);
   const pathname = reqUrl.pathname;
+  const appEntry = fs.existsSync(path.join(__dirname, 'AikTube.html')) ? 'AikTube.html' : 'index.html';
   const isApiRoute = pathname.startsWith('/api/');
 
   if (req.method === 'OPTIONS' && isApiRoute) {
@@ -507,12 +508,12 @@ const server = http.createServer(async (req, res) => {
   }
 
   // ── Servi file statici
-  const relativePath = pathname === '/'
-    ? 'AikTube.html'
+  const relativePath = (pathname === '/' || pathname === '/index.html')
+    ? appEntry
     : pathname.replace(/^\/+/, '');
   const filePath = path.resolve(__dirname, relativePath);
 
-  if (!filePath.startsWith(__dirname + path.sep) && filePath !== path.join(__dirname, 'AikTube.html')) {
+  if (!filePath.startsWith(__dirname + path.sep) && filePath !== path.join(__dirname, appEntry)) {
     res.writeHead(403);
     res.end();
     return;
